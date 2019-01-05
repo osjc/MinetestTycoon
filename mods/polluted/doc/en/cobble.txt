@@ -1,0 +1,7 @@
+[Basic]
+Title: Polluted cobblestone
+Type: Block
+
+[Description]
+This thing tries to be a cobblestone but it oozes the ugliness pollution
+from its pores and cracks.

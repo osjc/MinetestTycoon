@@ -1,0 +1,2 @@
+polluted = {}
+import("stone")

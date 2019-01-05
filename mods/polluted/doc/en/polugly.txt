@@ -1,0 +1,19 @@
+[Basic]
+Title: Ugliness pollution
+Type: Discovery
+
+[Description]
+This type of pollution, coming from an unknown source, causes the affected
+areas of the world to look ugly and disgusting. The colors in the area tend
+to be tinted to sickly green or nauseating whitish gray. Very few animal
+lifeforms can handle the ugliness so most creatures tend to avoid these
+areas. Your avatar fortunately belongs to the very few lifeforms that can
+handle the ugliness so it is safe to walk in these zones or touch anything
+found there.
+
+However this ugliness pollution can infest particular lifeforms so
+occassionally something walking can be encountered in the zone. However these
+encounters are few and far between because the pollution tends to drive
+lifeforms infested by it to exit the area and try to find more lifeforms to
+infest. For example the zombies are actually human beings that were infested
+with ugliness pollution.

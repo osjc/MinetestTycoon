@@ -1,0 +1,8 @@
+[Basic]
+Title: Polluted stone
+Type: Block
+
+[Description]
+This piece of rock was infested by [ugliness pollution] at a moderate
+level. The pollution gives it rough texture with nauseatingly whitish grey
+color.
