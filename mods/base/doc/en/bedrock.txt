@@ -1,0 +1,17 @@
+[Basic]
+Title: Bedrock
+Type: block
+
+[Description]
+Bedrock is a very hard block. It cannot be mined, altered, destroyed or moved
+by any means. It appears at the bottom of the world in a somewhat flat layer.
+It protects the foundations of the world and if it could be somehow
+destroyed, various things in the world would start to misbehave or even the
+world itself would collapse and become inaccessible.
+
+[Technical]
+The area filled with the bedrock is used by the world fabric code to store
+various metadata about the objects moving around the world. Removing a block
+will clear its metadata, so if nodes at the bottom of the world would be
+removed in any way, the metadata would be damaged. Thus the bedrock which is
+used to protect the world.
