@@ -20,12 +20,24 @@ minetest.register_on_generated(function(minp, maxp)
     local data = vm:get_data()
     local area = VoxelArea:new({MinEdge=emin, MaxEdge=emax})
     local c_bedrock = minetest.get_content_id("base:bedrock")
+    local c_air = minetest.get_content_id("air")
 
     for x = minp.x, maxp.x do
       for y = minp.y, maxp.y do
         for z = minp.z, maxp.z do
           local p_pos = area:index(x, y, z)
           data[p_pos] = c_bedrock
+        end
+      end
+    end
+
+    if minp.x == -32 and maxp.y == layer-80 and minp.z == -32 then
+      for x = -2, 2 do
+        for y = minp.y, minp.y+3 do
+          for z = -2, 2 do
+            local p_pos = area:index(x, y, z)
+            data[p_pos] = c_air
+          end
         end
       end
     end
