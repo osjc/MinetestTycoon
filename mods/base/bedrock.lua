@@ -14,6 +14,10 @@ minetest.register_node("base:bedrock", {
   diggable = false,
 })
 
+local function GetLobbyCoords()
+  return {x=0, y=layer-159.5, z=0}
+end
+
 minetest.register_on_generated(function(minp, maxp)
   if minp.y <= layer then
     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
@@ -48,3 +52,8 @@ minetest.register_on_generated(function(minp, maxp)
     vm:write_to_map()
   end
 end)
+
+function base.TeleportToLobby(player)
+  local coords = GetLobbyCoords()
+  player:set_pos(coords)
+end
