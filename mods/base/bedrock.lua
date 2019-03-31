@@ -15,11 +15,18 @@ minetest.register_node("base:bedrock", {
 })
 
 local function GetLobbyCoords()
-  return {x=0, y=layer-159.5, z=0}
+  return {x=30923, y=30921.5, z=30923}
 end
 
 minetest.register_on_generated(function(minp, maxp)
+  local genbedrock = false
   if minp.y <= layer then
+    genbedrock = true
+  end
+  if (minp.x>=30608 and minp.y>=30608 and minp.z>=30608) then
+    genbedrock = true
+  end
+  if genbedrock then
     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
     local data = vm:get_data()
     local area = VoxelArea:new({MinEdge=emin, MaxEdge=emax})
@@ -35,10 +42,10 @@ minetest.register_on_generated(function(minp, maxp)
       end
     end
 
-    if minp.x == -32 and maxp.y == layer-80 and minp.z == -32 then
-      for x = -2, 2 do
-        for y = minp.y, minp.y+3 do
-          for z = -2, 2 do
+    if minp.x == 30848 and minp.y == 30848 and minp.z == 30848 then
+      for x = maxp.x-6, maxp.x-2 do
+        for y = maxp.y-5, maxp.y-2 do
+          for z = maxp.z-6, maxp.z-2 do
             local p_pos = area:index(x, y, z)
             data[p_pos] = c_air
           end
