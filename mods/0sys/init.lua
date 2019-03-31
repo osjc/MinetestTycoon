@@ -11,3 +11,14 @@ function import(path)
   local base = minetest.get_modpath(name)
   dofile(base.."/"..path..".lua")
 end
+
+-- Function to open a file within the world directory.
+-- This shall be available in builtin so modders don't have
+-- to scribble their creations with this boilerplate code.
+function openfile(filename, mode)
+  if not mode then
+    mode="r"
+  end
+  local fullname = minetest.get_worldpath().."/"..filename
+  return io.open(fullname, mode)
+end
