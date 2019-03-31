@@ -5,18 +5,24 @@ local WorldWidthInChunks = WorldWidth / 80
 local LayerSizeInChunks = WorldWidthInChunks * WorldWidthInChunks
 local ChunkSize = 80*80*80
 
-function inode.CalculateIndex(pos)
+function inode.DissectPosition(pos)
+  local result = {}
   local x = pos.x+30912
   local y = pos.y+30912
   local z = pos.z+30912
-  local cx = math.floor(x/80)
-  local cy = math.floor(y/80)
-  local cz = math.floor(z/80)
-  local rx = x-cx*80
-  local ry = y-cy*80
-  local rz = z-cz*80
-  local IndexInChunk = rx + 80*rz + 6400*ry
-  local IndexOfChunk = cx + WorldWidthInChunks*cz + LayerSizeInChunks*cy
+  result.cx = math.floor(x/80)
+  result.cy = math.floor(y/80)
+  result.cz = math.floor(z/80)
+  result.rx = x-result.cx*80
+  result.ry = y-result.cy*80
+  result.rz = z-result.cz*80
+  return result
+end
+
+function inode.CalculateIndex(pos)
+  local d = inode.DissectPosition(pos)
+  local IndexInChunk = d.rx + 80*d.rz + 6400*d.ry
+  local IndexOfChunk = d.cx + WorldWidthInChunks*d.cz + LayerSizeInChunks*d.cy
   local Result = IndexInChunk + ChunkSize*IndexOfChunk
   return Result
 end
