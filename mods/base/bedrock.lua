@@ -1,8 +1,6 @@
 -- The bottom of the world is covered with a bedrock layer which cannot be
 -- destroyed by any means.
 
-local layer = -30593
-
 minetest.register_node("base:bedrock", {
   tiles = {"base_bedrock.png"},
   groups = {immortal=1, not_in_creative_inventory=1, },
@@ -18,7 +16,11 @@ local function GetLobbyCoords()
   return {x=30923, y=30921.5, z=30923}
 end
 
-minetest.register_on_generated(function(minp, maxp)
+local layer = -30593
+
+bedrock={}
+
+function bedrock.Generate(minp, maxp)
   local genbedrock = false
   if minp.y <= layer then
     genbedrock = true
@@ -58,7 +60,8 @@ minetest.register_on_generated(function(minp, maxp)
     vm:update_liquids()
     vm:write_to_map()
   end
-end)
+  return genbedrock
+end
 
 function base.TeleportToLobby(player)
   local coords = GetLobbyCoords()
