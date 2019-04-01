@@ -62,6 +62,12 @@ def DumpMap(Volatile):
   Writer=TMapWriter(Volatile)
   sqlite.ExtractMap(WorldBase,Writer)
 
+def GetWorldBase(WorldName):
+  Cwd=os.getcwd()
+  Cwd+="/"+sys.argv[0]+"/../../../../worlds/"+WorldName
+  WorldBase=InterpretWorldBase(Cwd)
+  return WorldBase
+
 def Main():
   global WorldBase,MapBase
   WorldName=None
@@ -91,9 +97,7 @@ def Main():
     print
     print "-v\tSave volatile data into the backup"
     return
-  Cwd=os.getcwd()
-  Cwd+="/"+sys.argv[0]+"/../../../../worlds/"+WorldName
-  WorldBase=InterpretWorldBase(Cwd)
+  WorldBase=GetWorldBase(WorldName)
   BackupBase=WorldName
   MapBase=BackupBase+"/map"
   DumpMap(Volatile)
