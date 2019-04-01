@@ -328,6 +328,8 @@ def DrawMap():
         if Pos in Map:
           Item=Map[Pos]
           Attr=14
+          if (X+Z)&1:
+            Attr=11
           Down=ToChar(Item.Min)
           Up=ToChar(Item.Max)
           Expected=Item.Max-Item.Min+1
