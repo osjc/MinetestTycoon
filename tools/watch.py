@@ -280,7 +280,10 @@ def ToChar(Value):
   elif Value>372+26:
     Result=">"
   else:
-    Result=chr(0x40+Value-371)
+    Result=39+Value-371
+    if Result>0x39:
+      Result+=39
+    Result=chr(Result)
   return Result
 
 def DrawMap():
