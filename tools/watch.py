@@ -283,6 +283,8 @@ def ToChar(Value):
     Result=39+Value-371
     if Result>0x39:
       Result+=39
+    elif Result<0x30:
+      Result+=43
     Result=chr(Result)
   return Result
 
