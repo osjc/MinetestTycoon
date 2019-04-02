@@ -223,11 +223,15 @@ def ParseInventorySet():
         if len(Line)==4:
           Wear=Line.pop()
           Stack.Wear=ToInt("Item wear", Wear)
-        if len(Line)!=3:
-          print repr(Line)
-        CheckComponentCount(3)
-        OpCode,Stack.Name,StackSize=Line
-        Stack.Size=ToInt("Stack size", StackSize)
+        if len(Line)==2:
+          OpCode,Stack.Name=Line
+          Stack.Size=1
+        else:
+          if len(Line)!=3:
+            print repr(Line)
+          CheckComponentCount(3)
+          OpCode,Stack.Name,StackSize=Line
+          Stack.Size=ToInt("Stack size", StackSize)
         if Stack.Size<1 or Stack.Size>65535:
           Malformed("Invalid stack size: "+str(Stack.Size))
         if Stack.Size!=1:
