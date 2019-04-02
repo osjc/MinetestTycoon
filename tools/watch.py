@@ -255,6 +255,8 @@ def UpdateMap():
     Line=InF.readline()
     if Line=="":
       break
+    if Line[0] not in "0123456789":
+      continue
     Line=int(Line)
     if len(Last)==10:
       Last[0:1]=[]

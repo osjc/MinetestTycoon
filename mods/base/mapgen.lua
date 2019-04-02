@@ -18,6 +18,7 @@ local function PutToLog(Text)
   file:close()
 end
 
+LogLineNum=0
 ReportedBlocks={}
 
 minetest.register_on_generated(function(minp, maxp)
@@ -25,19 +26,25 @@ minetest.register_on_generated(function(minp, maxp)
     return
   end
   local Index=PackChunkIndex(minp)
-  if ReportedBlocks[Index] then
-    print("Duplicated emerge: "..Index)
+  LogLineNum=LogLineNum+1
+  local PreviousLine=ReportedBlocks[Index]
+  if PreviousLine then
+    print("Duplicated emerge: "..Index.." first seen at line "..PreviousLine)
+    PutToLog(":"..(LogLineNum-1-PreviousLine))
     return
   end
-  ReportedBlocks[Index]=true
+  ReportedBlocks[Index]=LogLineNum
   print("Emerge: "..Index)
   PutToLog(Index)
 end)
 
 local function LoadLog()
   util.IterateOverLines("mapgen.log", function(Line)
+    LogLineNum=LogLineNum+1
     local Index=tonumber(Line)
-    ReportedBlocks[Index]=true
+    if Index ~= nil then
+      ReportedBlocks[Index]=LineNum
+    end
   end)
 end
 
