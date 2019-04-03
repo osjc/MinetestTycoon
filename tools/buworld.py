@@ -36,9 +36,22 @@ def InterpretWorldBase(Cwd):
       Result.append(Item)
   return "/".join(Result)
 
+def ParseCoord(Coord):
+  Coord-=2048
+  Coord+=1932
+  Coord/=5
+  return Coord
+
+def GetChunkIndex(X,Y,Z):
+  X=ParseCoord(X)
+  Y=ParseCoord(Y)
+  Z=ParseCoord(Z)
+  return X*1048576+Y*1024+Z
+
 class TMapWriter(object):
-  def __init__(s,Volatile):
+  def __init__(s,Volatile,MapgenMap):
     s.Volatile=Volatile
+    s.MapgenMap=MapgenMap
   def SetCount(s,Count):
     s.Count=Count
     s.Current=0
@@ -47,7 +60,18 @@ class TMapWriter(object):
     Position=parsebin.DecodePosition(Position)
     X,Y,Z=Position
     Pos="[%d,%d,%d]"%(X-2048,Y-2048,Z-2048)
-    print "Saving block",s.Current,"of",s.Count,"at",Pos
+    Skip=False
+    if s.MapgenMap is not None:
+      Index=GetChunkIndex(X,Y,Z)
+      Pos+=" {"+str(Index)+"}"
+      Skip=Index not in s.MapgenMap
+    if Skip:
+      print "Skipping",
+    else:
+      print "Saving",
+    print "block",s.Current,"of",s.Count,"at",Pos
+    if Skip:
+      return
     InF=StringIO(Data)
     InF=reader.TFileReader(InF)
     Block=parsebin.ParseBinaryBlock(InF)
@@ -58,8 +82,8 @@ class TMapWriter(object):
     dump.EmitBlock(OutF,Block,s.Volatile)
     OutF.close()
 
-def DumpMap(Volatile):
-  Writer=TMapWriter(Volatile)
+def DumpMap(Volatile,MapgenMap):
+  Writer=TMapWriter(Volatile,MapgenMap)
   sqlite.ExtractMap(WorldBase,Writer)
 
 def GetWorldBase(WorldName):
@@ -68,10 +92,29 @@ def GetWorldBase(WorldName):
   WorldBase=InterpretWorldBase(Cwd)
   return WorldBase
 
+def ReadMapgenLog():
+  try:
+    InF=open(WorldBase+"/mapgen.log")
+  except (IOError,OSError):
+    print "No mapgen log, will save everything"
+    return
+  MapgenMap={}
+  while True:
+    Line=InF.readline()
+    if Line=="":
+      break
+    if Line[0] not in "0123456789":
+      continue
+    Line=int(Line)
+    MapgenMap[Line]=True
+  InF.close()
+  return MapgenMap
+
 def Main():
   global WorldBase,MapBase
   WorldName=None
   Volatile=False
+  OnlyGenerated=False
   Invalid=None
   for Arg in sys.argv[1:]:
     if Arg=="-h":
@@ -82,6 +125,11 @@ def Main():
         Invalid="Too many -v options"
         break
       Volatile=True
+    elif Arg=="-g":
+      if OnlyGenerated:
+        Invalid="Too many -g options"
+        break
+      OnlyGenerated=True
     else:
       if WorldName is not None:
         Invalid="Too many world names"
@@ -93,11 +141,15 @@ def Main():
     if Invalid is not Ellipsis:
       print Invalid
       print
-    print "Usage: buworld.py [-v] worldname"
+    print "Usage: buworld.py [-v] [-g] worldname"
     print
     print "-v\tSave volatile data into the backup"
+    print "-g\tSave only generated mapchunks"
     return
   WorldBase=GetWorldBase(WorldName)
   BackupBase=WorldName
   MapBase=BackupBase+"/map"
-  DumpMap(Volatile)
+  MapgenMap=None
+  if OnlyGenerated:
+    MapgenMap=ReadMapgenLog()
+  DumpMap(Volatile,MapgenMap)
