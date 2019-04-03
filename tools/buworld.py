@@ -110,12 +110,21 @@ def ReadMapgenLog():
   InF.close()
   return MapgenMap
 
+class TMultiFileWriter(object):
+  def __init__(s,OutF1,OutF2):
+    s.OutF1=OutF1
+    s.OutF2=OutF2
+  def write(s, What):
+    s.OutF1.write(What)
+    s.OutF2.write(What)
+
 def Main():
   global WorldBase,MapBase
   WorldName=None
   Volatile=False
   OnlyGenerated=False
   Invalid=None
+  LogName=None
   for Arg in sys.argv[1:]:
     if Arg=="-h":
       Invalid=Ellipsis
@@ -130,6 +139,12 @@ def Main():
         Invalid="Too many -g options"
         break
       OnlyGenerated=True
+    elif Arg.startswith("-l"):
+      if LogName is not None:
+        Invalid="Too many -l options"
+      if len(Arg)<3:
+        Invalid="Option -l requires argument"
+      LogName=Arg[2:]
     else:
       if WorldName is not None:
         Invalid="Too many world names"
@@ -141,15 +156,23 @@ def Main():
     if Invalid is not Ellipsis:
       print Invalid
       print
-    print "Usage: buworld.py [-v] [-g] worldname"
+    print "Usage: buworld.py [-v] [-g] [-lNAME] worldname"
     print
     print "-v\tSave volatile data into the backup"
     print "-g\tSave only generated mapchunks"
+    print "-lNAME\tWrite messages also into log file NAME"
     return
   WorldBase=GetWorldBase(WorldName)
   BackupBase=WorldName
   MapBase=BackupBase+"/map"
   MapgenMap=None
+  if LogName is not None:
+    try:
+      LogF=open(LogName,"w")
+      sys.stdout=TMultiFileWriter(sys.stdout,LogF)
+    except (IOError,OSError),e:
+      print "Error creating log file:",e
+      print "Will not create one."
   if OnlyGenerated:
     MapgenMap=ReadMapgenLog()
   DumpMap(Volatile,MapgenMap)
