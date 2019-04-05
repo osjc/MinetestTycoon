@@ -12,14 +12,15 @@ local function PackChunkIndex(pos, cy, cz)
   return ChunkIndex
 end
 
+LogLineNum=1
+ReportedBlocks={}
+
 local function PutToLog(Text)
   local file = openfile("mapgen.log","a")
   file:write(Text.."\n")
   file:close()
+  LogLineNum=LogLineNum+1
 end
-
-LogLineNum=0
-ReportedBlocks={}
 
 local function PosToString(pos)
   return("["..pos.x..","..pos.y..","..pos.z.."]")
@@ -30,7 +31,6 @@ minetest.register_on_generated(function(minp, maxp)
     return
   end
   local Index=PackChunkIndex(minp)
-  LogLineNum=LogLineNum+1
   local MinpStr = PosToString(minp)
   local MaxpStr = PosToString(maxp)
   local PosReport = " "..MinpStr.." "..MaxpStr
