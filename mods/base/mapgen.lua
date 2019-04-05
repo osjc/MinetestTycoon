@@ -43,7 +43,7 @@ local function LoadLog()
     LogLineNum=LogLineNum+1
     local Index=tonumber(Line)
     if Index ~= nil then
-      ReportedBlocks[Index]=LineNum
+      ReportedBlocks[Index]=LogLineNum
     end
   end)
 end
