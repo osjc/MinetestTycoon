@@ -105,7 +105,8 @@ def ReadMapgenLog():
       break
     if Line[0] not in "0123456789":
       continue
-    Line=int(Line)
+    Line=Line.split()
+    Line=int(Line[0])
     MapgenMap[Line]=True
   InF.close()
   return MapgenMap

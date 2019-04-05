@@ -21,29 +21,43 @@ end
 LogLineNum=0
 ReportedBlocks={}
 
+local function PosToString(pos)
+  return("["..pos.x..","..pos.y..","..pos.z.."]")
+end
+
 minetest.register_on_generated(function(minp, maxp)
   if bedrock.Generate(minp, maxp) then
     return
   end
   local Index=PackChunkIndex(minp)
   LogLineNum=LogLineNum+1
-  local PreviousLine=ReportedBlocks[Index]
-  if PreviousLine then
-    print("Duplicated emerge: "..Index.." first seen at line "..PreviousLine)
-    PutToLog(":"..(LogLineNum-1-PreviousLine))
+  local MinpStr = PosToString(minp)
+  local MaxpStr = PosToString(maxp)
+  local PosReport = " "..MinpStr.." "..MaxpStr
+  local Previous=ReportedBlocks[Index]
+  if Previous then
+    local Msg="Duplicated emerge: "..Index
+    print(Msg.." first seen at line "..Previous.Line)
+    local Report=":"..(LogLineNum-1-Previous.Line)
+    if Previous.Report~=PosReport then
+      Report=Report..PosReport
+    end
+    PutToLog(Report)
     return
   end
-  ReportedBlocks[Index]=LogLineNum
+  ReportedBlocks[Index]={Line=LogLineNum,Report=PosReport}
   print("Emerge: "..Index)
-  PutToLog(Index)
+  PutToLog(Index..PosReport)
 end)
 
 local function LoadLog()
   util.IterateOverLines("mapgen.log", function(Line)
     LogLineNum=LogLineNum+1
-    local Index=tonumber(Line)
-    if Index ~= nil then
-      ReportedBlocks[Index]=LogLineNum
+    local FirstPos=string.find(Line," ")
+    if FirstPos ~= nil then
+      local IndexStr=string.sub(Line, 1, FirstPos-1)
+      local Index=tonumber(IndexStr)
+      local PosReport=string.sub(Line,FirstPos,-1)
     end
   end)
 end
