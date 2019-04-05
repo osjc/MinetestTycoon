@@ -10,9 +10,9 @@ end
 local function WaitForTheEmerge(pos, meta)
   local absent = IsBlockAbsent(pos)
   if absent then
-    minetest.after(0.1, WaitForTheEmerge, pos, meta)
     return true
   end
+  clock.UnregisterPeriodicProc("Wait")
   for name,value in pairs(meta.data) do
     if meta.types[name]=="int" then
       meta.meta:set_int(name, value)
@@ -72,6 +72,7 @@ local function GetInode(index)
   local absent = WaitForTheEmerge(pos, dict)
   if absent then
     minetest.emerge_area(pos, pos)
+    clock.RegisterPeriodicProc("Wait", WaitForTheEmerge, pos, dict)
     return dict, true
   else
     return dict.meta

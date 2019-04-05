@@ -1,8 +1,14 @@
+clock = {}
+
 local ClockTime
 local Divider
 
 local GetGameTime = minetest.get_gametime
 minetest.get_gametime = nil
+local Restart = minetest.after
+minetest.after = nil
+
+local Periodic = {}
 
 local function RunClock()
   local Time = GetGameTime()
@@ -14,6 +20,9 @@ local function RunClock()
   if Divider then
     ClockTime = ClockTime + 1
     Divider = nil
+    for _,Record in pairs(Periodic) do
+      Record.Proc(unpack(Record.Arg))
+    end
   else
     Divider = 1
   end
@@ -31,10 +40,14 @@ local function InitClock()
 end
 InitClock()
 
-function base.GetTime()
+function clock.GetTime()
   return ClockTime
 end
 
-function base.After(Time,Procedure,...)
-  Restart(Time,Procedure,unpack(arg))
+function clock.RegisterPeriodicProc(Name,Procedure,...)
+  Periodic[Name]={Proc=Procedure,Arg=arg}
+end
+
+function clock.UnregisterPeriodicProc(Name)
+  Periodic[Name]=nil
 end
