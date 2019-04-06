@@ -174,48 +174,20 @@ def SynchronizeOrigin():
     if OX+10>PX or OX+30<PX or  OZ+5>PZ or OZ+25<PZ:
       Origin=(PX-20,PZ-20)
 
-def GetPlayerPosition():
-  global Player
-  def ParseCoord(Coord):
-    Index=Coord.find(".")
-    if Index>0:
-      Coord=Coord[:Index]
-    Coord=int(Coord)
-    Coord+=309120
-    Coord/=800
-    return Coord
-  try:
-    InF=open(WorldBase+"/players/singleplayer")
-  except (IOError,OSError):
-    Player=(None,None,None)
-    return
-  while True:
-    Line=InF.readline()
-    if Line=="" or Line.startswith("position"):
-      break
-  InF.close()
-  Player=None
-  if Line!="":
-    Start=Line.index("(")
-    Stop=Line.index(")")
-    Line=Line[Start+1:Stop]
-    Line=Line.split(",")
-    X=ParseCoord(Line[0])
-    Y=ParseCoord(Line[1])
-    Z=ParseCoord(Line[2])
-    if X==772 and Y==772 and Z==772:
-      X=None
-      Y=None
-      Z=None
-    Player=(X,Y,Z)
-    SynchronizeOrigin()
-
 def UnpackChunkPos(Pos):
   Z=Pos%1024
   Pos/=1024
   Y=Pos%1024
   X=Pos/1024
   return X,Y,Z
+
+def GetPlayerPosition():
+  global Player
+  if PlayerPos is None:
+    Player=(None,None,None)
+  else:
+    Player=UnpackChunkPos(PlayerPos)
+    SynchronizeOrigin()
 
 class TMapItem(object):
   def __init__(s):
@@ -236,14 +208,22 @@ def GenerateImage():
   return Result
 
 def ClearMap():
-  global Origin,Map,MapPos,FirstMapPos
+  global Origin,Map,MapPos,FirstMapPos,PlayerPos
   Origin=(None,None)
   Map={0:[]}
   MapPos=0
   FirstMapPos=(None,None,None)
+  PlayerPos=None
+
+Deltas=[]
+for x in range(-1,2):
+  for y in range(-1,2):
+    for z in range(-1,2):
+      if x!=0 or y!=0 or z!=0:
+        Deltas.append(x*1048576 + y*1024 + z)
 
 def UpdateMap():
-  global MapPos,FirstMapPos
+  global MapPos,FirstMapPos,PlayerPos
   Last=Map[0]
   try:
     InF=open(WorldBase+"/mapgen.log")
@@ -255,10 +235,21 @@ def UpdateMap():
     Line=InF.readline()
     if Line=="":
       break
-    if Line[0] not in "0123456789":
-      continue
     Line=Line.split()
-    Line=int(Line[0])
+    Index=Line[0]
+    if Index[0]=="P":
+      if Index[1]=="a":
+        PlayerPos=int(Index[2:])
+      else:
+        Code=int(Index[1:])
+        PlayerPos+=Deltas[Code]
+      GetPlayerPosition()
+    if Index[0] not in "0123456789":
+      continue
+    Line=int(Index)
+    if PlayerPos is None:
+      PlayerPos=Line
+      GetPlayerPosition()
     if len(Last)==10:
       Last[0:1]=[]
     Last.append(Line)
@@ -364,7 +355,6 @@ def DrawMap():
 def RunLoop():
   DebugScreen()
   while True:
-    GetPlayerPosition()
     UpdateMap()
     DrawMap()
     Flush()
