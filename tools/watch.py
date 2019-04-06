@@ -208,12 +208,13 @@ def GenerateImage():
   return Result
 
 def ClearMap():
-  global Origin,Map,MapPos,FirstMapPos,PlayerPos
+  global Origin,Map,MapPos,FirstMapPos,PlayerPos,Score
   Origin=(None,None)
   Map={0:[]}
   MapPos=0
   FirstMapPos=(None,None,None)
   PlayerPos=None
+  Score=0
 
 Deltas=[]
 for x in range(-1,2):
@@ -223,7 +224,7 @@ for x in range(-1,2):
         Deltas.append(x*1048576 + y*1024 + z)
 
 def UpdateMap():
-  global MapPos,FirstMapPos,PlayerPos
+  global MapPos,FirstMapPos,PlayerPos,Score
   Last=Map[0]
   try:
     InF=open(WorldBase+"/mapgen.log")
@@ -265,6 +266,7 @@ def UpdateMap():
       Item=TMapItem()
       Map[Pos]=Item
     Item.Add(Y)
+    Score+=1
   MapPos=InF.tell()
   InF.close()
 
@@ -286,6 +288,8 @@ def DrawMap():
   global DrawnPos
   OldX=CX
   OldY=CY
+  GotoXY(20,31)
+  Print("Discovery score: "+str(Score)+" "*6)
   X,Z=Origin
   GotoXY(20,33)
   Print("OX="+str(X)+" "*4)
