@@ -26,12 +26,49 @@ end
 
 LogLineNum=1
 ReportedBlocks={}
+PlayerPos=nil
 
 local function PutToLog(Text)
   local file = openfile("mapgen.log","a")
   file:write(Text.."\n")
   file:close()
   LogLineNum=LogLineNum+1
+end
+
+function base.RecordPlayerPosition(player)
+  if PlayerPos==nil then
+    return
+  end
+  local Pos = player:get_pos()
+  local Index = PackChunkIndex(Pos)
+  if Index == PlayerPos then
+    return
+  end
+  local Code = 0
+  local Found
+  for x=-1,1 do
+    for y=-1,1 do
+      for z=-1,1 do
+        if x~=0 or y~=0 or z~=0 then
+          local NewIndex=PlayerPos + x*1048576 + y*1024 + z
+          if NewIndex==Index then
+            Found=Code
+          end
+          Code=Code+1
+        end
+      end
+    end
+  end
+  local Report
+  if Found == nil then
+    Report="Pa"..Index
+  else
+    Report="P"..Found
+  end
+  local TimeReport=GetTimeReport()
+  PutToLog(Report..TimeReport)
+  PlayerPos=Index
+  print("PlayerPos: "..Index.." "..LastTime)
 end
 
 local function PosToString(pos)
@@ -58,12 +95,28 @@ minetest.register_on_generated(function(minp, maxp)
     PutToLog(Report)
     return
   end
+  if PlayerPos==nil then
+    PlayerPos=Index
+    print("PlayerPos: "..Index)
+  end
   ReportedBlocks[Index]={Line=LogLineNum,Report=PosReport}
   print("Emerge: "..Index.." "..LastTime)
   PutToLog(Index..TimeReport..PosReport)
 end)
 
 local function LoadLog()
+  local Deltas={}
+  local Code=0
+  for x=-1,1 do
+    for y=-1,1 do
+      for z=-1,1 do
+        if x~=0 or y~=0 or z~=0 then
+          Deltas[Code]=x*1048576 + y*1024 + z
+          Code=Code+1
+        end
+      end
+    end
+  end
   util.IterateOverLines("mapgen.log", function(Line)
     local FirstChar=string.sub(Line,1,1)
     local FirstPos=string.find(Line," ")
@@ -97,6 +150,20 @@ local function LoadLog()
       local IndexStr=string.sub(Line, 1, IndexEnd)
       local Index=tonumber(IndexStr)
       ReportedBlocks[Index]={Line=LogLineNum,Report=PosReport}
+      if PlayerPos==nil then
+        PlayerPos=Index
+      end
+    elseif FirstChar=="P" then
+      local CodeType=string.sub(Line, 2, 2)
+      if CodeType=="a" then
+        local PlayerPosStr=string.sub(Line,3,IndexEnd)
+        PlayerPos=tonumber(PlayerPosStr)
+      else
+        local CodeStr=string.sub(Line,2,IndexEnd)
+        local Code=tonumber(CodeStr)
+        local Delta=Deltas[Code]
+        PlayerPos=PlayerPos+Delta
+      end
     end
     LogLineNum=LogLineNum+1
   end)
