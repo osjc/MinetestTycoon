@@ -51,3 +51,14 @@ end
 function clock.UnregisterPeriodicProc(Name)
   Periodic[Name]=nil
 end
+
+if config.DebugClock then
+  local Key = {}
+  clock.RegisterPeriodicProc(Key, function()
+    local Time = GetGameTime()
+    Seconds = math.floor(ClockTime/10)
+    SubSeconds = ClockTime - Seconds*10
+    local timestr = string.format("%d.%d",Seconds,SubSeconds)
+    print(timestr.." "..tostring(Time))
+  end)
+end
