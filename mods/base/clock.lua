@@ -1,7 +1,14 @@
 clock = {}
 
 local ClockTime
-local Divider
+local Divider = 0
+
+local LastTime
+local TickCount = 30
+local TickCounts={30, 30, 30, 30, 30}
+local TickCountIndex = 1
+local TickCountsTotal = 30*5
+local TickSize
 
 local GetGameTime = minetest.get_gametime
 minetest.get_gametime = nil
@@ -12,21 +19,29 @@ local Periodic = {}
 
 local function RunClock()
   local Time = GetGameTime()
-  local Seconds = math.floor(ClockTime/10)
-  local SubSeconds = ClockTime - Seconds*10
-  if Seconds<Time then
-    Divider=1
+  if LastTime ~= Time then
+    LastTime=Time
+    TickCountsTotal=TickCountsTotal+TickCount-TickCounts[TickCountIndex]
+    TickCounts[TickCountIndex]=TickCount
+    if TickCountIndex==5 then
+      TickCountIndex = 1
+    else
+      TickCountIndex = TickCountIndex + 1
+    end
+    TickCount=1
+    TickSize = 50000/TickCountsTotal
+  else
+    TickCount = TickCount + 1
   end
-  if Divider then
+  Divider = Divider + TickSize
+  if Divider>1000 then
     ClockTime = ClockTime + 1
-    Divider = nil
     for _,Record in pairs(Periodic) do
       Record.Proc(unpack(Record.Arg))
     end
-  else
-    Divider = 1
+    Divider = Divider - 1000
   end
-  Restart(0.05,RunClock)
+  Restart(0.01,RunClock)
 end
 
 local function InitClock()
@@ -54,11 +69,16 @@ end
 
 if config.DebugClock then
   local Key = {}
+  local OldRunClock=RunClock
+  RunClock = function()
+    OldRunClock()
+    print("T: "..tostring(TickCountsTotal).." "..tostring(Divider))
+  end
   clock.RegisterPeriodicProc(Key, function()
     local Time = GetGameTime()
     Seconds = math.floor(ClockTime/10)
     SubSeconds = ClockTime - Seconds*10
     local timestr = string.format("%d.%d",Seconds,SubSeconds)
-    print(timestr.." "..tostring(Time))
+    print("C: "..timestr.." "..tostring(Time).." "..tostring(Divider))
   end)
 end
