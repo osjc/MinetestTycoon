@@ -7,7 +7,8 @@ local function IsBlockAbsent(pos)
   return node.name == "ignore"
 end
 
-local function WaitForTheEmerge(pos, meta)
+local function WaitForTheEmerge(Info)
+  local pos, meta = unpack(Info)
   local absent = IsBlockAbsent(pos)
   if absent then
     return true
@@ -69,10 +70,11 @@ local function GetInode(index)
     types={},
     data={},
   }
-  local absent = WaitForTheEmerge(pos, dict)
+  local Info = {pos, dict}
+  local absent = WaitForTheEmerge(Info)
   if absent then
     minetest.emerge_area(pos, pos)
-    clock.RegisterPeriodicProc("Wait", WaitForTheEmerge, pos, dict)
+    clock.RegisterPeriodicProc("Wait", WaitForTheEmerge, Info)
     return dict, true
   else
     return dict.meta

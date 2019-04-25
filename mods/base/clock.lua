@@ -37,7 +37,7 @@ local function RunClock()
   if Divider>1000 then
     ClockTime = ClockTime + 1
     for _,Record in pairs(Periodic) do
-      Record.Proc(unpack(Record.Arg))
+      Record.Proc(Record.Arg)
     end
     Divider = Divider - 1000
   end
@@ -59,8 +59,8 @@ function clock.GetTime()
   return ClockTime
 end
 
-function clock.RegisterPeriodicProc(Name,Procedure,...)
-  Periodic[Name]={Proc=Procedure,Arg=arg}
+function clock.RegisterPeriodicProc(Name,Procedure,Argument)
+  Periodic[Name]={Proc=Procedure,Arg=Argument}
 end
 
 function clock.UnregisterPeriodicProc(Name)
