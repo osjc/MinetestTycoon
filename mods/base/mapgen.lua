@@ -119,7 +119,7 @@ local function LoadLog()
   end
   util.IterateOverLines("mapgen.log", function(Line)
     local FirstChar=string.sub(Line,1,1)
-    local FirstPos=string.find(Line," ")
+    local FirstPos=string.find(Line," ") or string.len(Line)
     local IndexEnd=FirstPos-1
     local PosReport=nil
     while true do
