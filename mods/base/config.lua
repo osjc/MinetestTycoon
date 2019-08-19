@@ -9,6 +9,7 @@ end
 -- Set defaults
 config = {
   DebugClock=false,
+  RecordMapgen=false,
 }
 
 -- Load world specific config file

@@ -75,7 +75,7 @@ local function PosToString(pos)
   return("["..pos.x..","..pos.y..","..pos.z.."]")
 end
 
-minetest.register_on_generated(function(minp, maxp)
+local function GenerateAndRecord(minp, maxp)
   if bedrock.Generate(minp, maxp) then
     return
   end
@@ -102,7 +102,7 @@ minetest.register_on_generated(function(minp, maxp)
   ReportedBlocks[Index]={Line=LogLineNum,Report=PosReport}
   print("Emerge: "..Index.." "..LastTime)
   PutToLog(Index..TimeReport..PosReport)
-end)
+end
 
 local function LoadLog()
   local Deltas={}
@@ -169,4 +169,9 @@ local function LoadLog()
   end)
 end
 
-LoadLog()
+if config.RecordMapgen then
+  LoadLog()
+  minetest.register_on_generated(GenerateAndRecord)
+else
+  minetest.register_on_generated(bedrock.Generate)
+end
