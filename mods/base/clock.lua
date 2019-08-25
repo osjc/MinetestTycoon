@@ -11,9 +11,7 @@ local TickCountsTotal = 30*5
 local TickSize
 
 local GetGameTime = minetest.get_gametime
-minetest.get_gametime = nil
 local Restart = minetest.after
-minetest.after = nil
 
 local Periodic = {}
 
